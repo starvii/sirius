@@ -1,12 +1,12 @@
 @echo on
 
-echo 添加绿豆沙背景
+@echo add green background color
 
 reg add "HKEY_CURRENT_USER\Control Panel\Appearance\New Schemes\Current Settings SaveAll\Sizes\0" /v "Color #5" /t REG_DWORD /d 16777215 /f
 
 reg add "HKEY_CURRENT_USER\Control Panel\Colors" /v "Window" /t REG_SZ /d "204 232 207" /f
 
-echo 删除“这台电脑”中的置顶文件夹
+@echo delete topped directories in THIS COMPUTER 
 
 reg delete HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\MyComputer\NameSpace\{1CF1260C-4DD0-4ebb-811F-33C572699FDE} /f
 

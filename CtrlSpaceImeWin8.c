@@ -1,5 +1,5 @@
 /************************************************************************/
-/* @Author: starvii                                                                     */
+/* @Author: starvii                                                     */
 /************************************************************************/
 #include <windows.h>
 
@@ -9,24 +9,24 @@ HHOOK       m_hHook = NULL;
 
 
 /************************************************************************/
-/* Ä£Äâ ctrl + shift °´¼ü£¬ÇĞ»»ÓïÑÔ                                      */
+/* æ¨¡æ‹Ÿ ctrl + shift æŒ‰é”®ï¼Œåˆ‡æ¢è¯­è¨€                                     */
 /************************************************************************/
 VOID sendCtrlShift()
 {
-	/* ctrl shift ¼ü°´ÏÂ */
+	/* ctrl shift é”®æŒ‰ä¸‹ */
 	keybd_event(VK_CONTROL, (BYTE)0, 0, 0);
 	keybd_event(VK_SHIFT, (BYTE)0, 0, 0);
 
-	/* ctrl shift ¼üÊÍ·Å */
+	/* ctrl shift é”®é‡Šæ”¾ */
 	keybd_event(VK_SHIFT, (BYTE)0, KEYEVENTF_KEYUP, 0);
 	keybd_event(VK_CONTROL, (BYTE)0, KEYEVENTF_KEYUP, 0);
 
-	/* »Ö¸´ ctrl ¼ü°´ÏÂ×´Ì¬ */
+	/* æ¢å¤ ctrl é”®æŒ‰ä¸‹çŠ¶æ€ */
 	keybd_event(VK_CONTROL, (BYTE)0, 0, 0);
 }
 
 /************************************************************************/
-/* È«¾Ö¼üÅÌ¹³×Ó»Øµ÷º¯Êı                                                  */
+/* å…¨å±€é”®ç›˜é’©å­å›è°ƒå‡½æ•°                                                 */
 /************************************************************************/
 LRESULT CALLBACK KeyBoardProc(
 	int nCode,
@@ -40,7 +40,7 @@ LRESULT CALLBACK KeyBoardProc(
 
 		tag = (KBDLLHOOKSTRUCT *)lParam;
 
-		/* À¹½Ø ctrl + space °´ÏÂÊÂ¼ş */
+		/* æ‹¦æˆª ctrl + space æŒ‰ä¸‹äº‹ä»¶ */
 		if (WM_KEYDOWN == wParam)
 		{
 			if (GetKeyState(VK_CONTROL) < 0 && tag->vkCode == VK_SPACE)
@@ -50,9 +50,9 @@ LRESULT CALLBACK KeyBoardProc(
 			}
 		}
 
-		/* À¹½Ø ctrl + space Ì§ÆğÊÂ¼ş£¬²¢ÇĞ»»ÊäÈëÓïÑÔ */
-		/* Win8Ö®Ç°ÊäÈë·¨ÇĞ»»ÊÇÓÉ°´¼ü°´ÏÂ´¥·¢µÄ£¬µ«win8ÓÉ°´¼üÌ§Æğ´¥·¢ */
-		/* µ«¾­¹ı²âÊÔ£¬ÕâÖÖ·½·¨ÏàÓ¦ËÙ¶È½ÏÂı£¬¿ÉÄÜµ¼ÖÂÓĞÊ±ÎŞ·¨ÇĞ»»ÊäÈë·¨ */
+		/* æ‹¦æˆª ctrl + space æŠ¬èµ·äº‹ä»¶ï¼Œå¹¶åˆ‡æ¢è¾“å…¥è¯­è¨€ */
+		/* Win8ä¹‹å‰è¾“å…¥æ³•åˆ‡æ¢æ˜¯ç”±æŒ‰é”®æŒ‰ä¸‹è§¦å‘çš„ï¼Œä½†win8ç”±æŒ‰é”®æŠ¬èµ·è§¦å‘ */
+		/* ä½†ç»è¿‡æµ‹è¯•ï¼Œè¿™ç§æ–¹æ³•ç›¸åº”é€Ÿåº¦è¾ƒæ…¢ï¼Œå¯èƒ½å¯¼è‡´æœ‰æ—¶æ— æ³•åˆ‡æ¢è¾“å…¥æ³• */
 
 		/*
 		if (WM_KEYUP == wParam || WM_SYSKEYUP == wParam)
@@ -78,16 +78,16 @@ int WINAPI WinMain(
 {
 	m_hInstance = (HINSTANCE)hInstance;
 
-	/* °²×°È«¾Ö¼üÅÌ¹³×Ó */
+	/* å®‰è£…å…¨å±€é”®ç›˜é’©å­ */
 	m_hHook = SetWindowsHookEx(WH_KEYBOARD_LL, KeyBoardProc, m_hInstance, 0);
 
 	if (NULL == m_hHook)
 	{
-		MessageBox(NULL, "ÎŞ·¨´´½¨È«¾Ö¼üÅÌ¹³×Ó£¡", "´íÎó", MB_OK & MB_ICONERROR);
+		MessageBox(NULL, "æ— æ³•åˆ›å»ºå…¨å±€é”®ç›˜é’©å­ï¼", "é”™è¯¯", MB_OK & MB_ICONERROR);
 		return -1;
 	}
 
-	/* ½øÈëÏûÏ¢Ñ­»·£¬±£Ö¤È«¾Ö¼üÅÌ¹³×ÓÉúĞ§ */
+	/* è¿›å…¥æ¶ˆæ¯å¾ªç¯ï¼Œä¿è¯å…¨å±€é”®ç›˜é’©å­ç”Ÿæ•ˆ */
 	MSG msg;
 	while (GetMessage(&msg, NULL, 0, 0))
 	{
