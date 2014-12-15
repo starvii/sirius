@@ -1,32 +1,79 @@
 /************************************************************************/
-/* @Author: starvii                                                     */
+/* @Author: starvii
 /************************************************************************/
 #include <windows.h>
-
 
 HINSTANCE   m_hInstance = NULL;
 HHOOK       m_hHook = NULL;
 
+/************************************************************************/
+/* 检测已启动实例，防止重复运行
+/************************************************************************/
+BOOL MultiInstanceExists()
+{
+	HANDLE hMutex = NULL;
+	TCHAR *lpszName = "WIN8IME_SWICTH_TOOL_pDK9i6Ho04i3WpjJ";
+	
+	hMutex = CreateMutex(NULL, FALSE, lpszName);
+	DWORD dwRet = GetLastError();
+
+	if (hMutex)
+	{
+		if (ERROR_ALREADY_EXISTS == dwRet)
+		{
+			CloseHandle(hMutex);
+			return TRUE;
+		}
+		else
+		{
+			return FALSE;
+		}
+	}
+	else
+	{
+		MessageBox(NULL, "Create Mutex Error.", "ERROR", MB_OK & MB_ICONERROR);
+		return -1;
+	}
+}
 
 /************************************************************************/
-/* 模拟 ctrl + shift 按键，切换语言                                     */
+/* 模拟 win + space 按键，切换语言
 /************************************************************************/
-VOID sendCtrlShift()
+VOID sendWinSpace()
 {
+	/* 这里最好改成由 win + space 触发 */
+
 	/* ctrl shift 键按下 */
+	/*
 	keybd_event(VK_CONTROL, (BYTE)0, 0, 0);
 	keybd_event(VK_SHIFT, (BYTE)0, 0, 0);
+	*/
+
+
+	/* WIN + SPACE 键按下 */
+	keybd_event(VK_LWIN, (BYTE)0, 0, 0);
+	Sleep(1);
+	keybd_event(VK_SPACE, (BYTE)0, 0, 0);
+	Sleep(1);
 
 	/* ctrl shift 键释放 */
+	/*
 	keybd_event(VK_SHIFT, (BYTE)0, KEYEVENTF_KEYUP, 0);
 	keybd_event(VK_CONTROL, (BYTE)0, KEYEVENTF_KEYUP, 0);
+	*/
+
+	/* WIN + SPACE 键释放 */
+	keybd_event(VK_SPACE, (BYTE)0, KEYEVENTF_KEYUP, 0);
+	Sleep(1);
+	keybd_event(VK_LWIN, (BYTE)0, KEYEVENTF_KEYUP, 0);
+	Sleep(1);
 
 	/* 恢复 ctrl 键按下状态 */
 	keybd_event(VK_CONTROL, (BYTE)0, 0, 0);
 }
 
 /************************************************************************/
-/* 全局键盘钩子回调函数                                                 */
+/* 全局键盘钩子回调函数
 /************************************************************************/
 LRESULT CALLBACK KeyBoardProc(
 	int nCode,
@@ -45,14 +92,14 @@ LRESULT CALLBACK KeyBoardProc(
 		{
 			if (GetKeyState(VK_CONTROL) < 0 && tag->vkCode == VK_SPACE)
 			{
-				sendCtrlShift();
+				sendWinSpace();
 				return TRUE;
 			}
 		}
 
 		/* 拦截 ctrl + space 抬起事件，并切换输入语言 */
 		/* Win8之前输入法切换是由按键按下触发的，但win8由按键抬起触发 */
-		/* 但经过测试，这种方法相应速度较慢，可能导致有时无法切换输入法 */
+		/* 但经过测试，这种方法 响应速度较慢，可能导致有时无法切换输入法 */
 
 		/*
 		if (WM_KEYUP == wParam || WM_SYSKEYUP == wParam)
@@ -70,12 +117,27 @@ LRESULT CALLBACK KeyBoardProc(
 	return CallNextHookEx(m_hHook, nCode, wParam, lParam);
 }
 
+/************************************************************************/
+/* 主函数
+/************************************************************************/
 int WINAPI WinMain(
 	HINSTANCE hInstance,
 	HINSTANCE hPrevInstance,
 	LPSTR lpCmdLine,
 	int nCmdShow)
 {
+	BOOL mie = TRUE;
+	/* 检测运行实例 */
+	mie = MultiInstanceExists();
+	if (TRUE == mie)
+	{
+		return -1;
+	}
+	else if (-1 == mie)
+	{
+		return -2;
+	}
+
 	m_hInstance = (HINSTANCE)hInstance;
 
 	/* 安装全局键盘钩子 */
@@ -83,8 +145,8 @@ int WINAPI WinMain(
 
 	if (NULL == m_hHook)
 	{
-		MessageBox(NULL, "无法创建全局键盘钩子！", "错误", MB_OK & MB_ICONERROR);
-		return -1;
+		MessageBox(NULL, "Create Keyboard Hook Error.", "ERROR", MB_OK & MB_ICONERROR);
+		return -3;
 	}
 
 	/* 进入消息循环，保证全局键盘钩子生效 */
