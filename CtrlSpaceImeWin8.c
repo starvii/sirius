@@ -39,37 +39,18 @@ BOOL MultiInstanceExists()
 /************************************************************************/
 /* 模拟 win + space 按键，切换语言
 /************************************************************************/
-VOID sendWinSpace()
+VOID SendWinSpaceDown()
 {
-	/* 这里最好改成由 win + space 触发 */
-
-	/* ctrl shift 键按下 */
-	/*
-	keybd_event(VK_CONTROL, (BYTE)0, 0, 0);
-	keybd_event(VK_SHIFT, (BYTE)0, 0, 0);
-	*/
-
-
 	/* WIN + SPACE 键按下 */
 	keybd_event(VK_LWIN, (BYTE)0, 0, 0);
-	Sleep(1);
 	keybd_event(VK_SPACE, (BYTE)0, 0, 0);
-	Sleep(1);
+}
 
-	/* ctrl shift 键释放 */
-	/*
-	keybd_event(VK_SHIFT, (BYTE)0, KEYEVENTF_KEYUP, 0);
-	keybd_event(VK_CONTROL, (BYTE)0, KEYEVENTF_KEYUP, 0);
-	*/
-
+VOID SendWinSpaceUp()
+{
 	/* WIN + SPACE 键释放 */
 	keybd_event(VK_SPACE, (BYTE)0, KEYEVENTF_KEYUP, 0);
-	Sleep(1);
 	keybd_event(VK_LWIN, (BYTE)0, KEYEVENTF_KEYUP, 0);
-	Sleep(1);
-
-	/* 恢复 ctrl 键按下状态 */
-	keybd_event(VK_CONTROL, (BYTE)0, 0, 0);
 }
 
 /************************************************************************/
@@ -84,34 +65,18 @@ LRESULT CALLBACK KeyBoardProc(
 
 	if (nCode == HC_ACTION)
 	{
-
 		tag = (KBDLLHOOKSTRUCT *)lParam;
 
 		/* 拦截 ctrl + space 按下事件 */
-		if (WM_KEYDOWN == wParam)
+		if ( WM_KEYDOWN == wParam )
 		{
 			if (GetKeyState(VK_CONTROL) < 0 && tag->vkCode == VK_SPACE)
 			{
-				sendWinSpace();
+				SendWinSpaceDown();
+				SendWinSpaceUp();
 				return TRUE;
 			}
 		}
-
-		/* 拦截 ctrl + space 抬起事件，并切换输入语言 */
-		/* Win8之前输入法切换是由按键按下触发的，但win8由按键抬起触发 */
-		/* 但经过测试，这种方法 响应速度较慢，可能导致有时无法切换输入法 */
-
-		/*
-		if (WM_KEYUP == wParam || WM_SYSKEYUP == wParam)
-		{
-		if (GetKeyState(VK_CONTROL) < 0 && tag->vkCode == VK_SPACE)
-		{
-		sendCtrlShift();
-		return TRUE;
-		}
-		}
-		*/
-
 	}
 
 	return CallNextHookEx(m_hHook, nCode, wParam, lParam);
